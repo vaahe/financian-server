@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Video {
+  id        String   @id @default(uuid())
+  title     String
+  url       String
+  duration  Int
+  courseId  String
+  createdAt DateTime @default(now())
+
+  // relations
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@index([courseId])
+}
+
+model User {
+  id          String   @id @default(uuid())
+  fullName    String
+  email       String   @unique
+  password    String
+  phoneNumber String
+  imageUrl    String
+  createdAt   DateTime @default(now())
+
+  // relations
+  courses  Course[]  @relation("UserCourses")
+  comments Comment[]
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  rating      Float
+  reviews     Int
+  category    String
+  imageUrl    String
+  duration    Int
+  videoCount  Int
+  videos      Video[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // relations
+  buyers   User[]    @relation("UserCourses")
+  comments Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  // relations
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId String
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
