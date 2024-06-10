@@ -1,6 +1,9 @@
 import cors, { CorsOptions } from 'cors';
 import dotenv from "dotenv";
 import express, { Express } from "express";
+import bodyParser from 'body-parser';
+
+import userRouter from './routes/userRoute';
 
 dotenv.config();
 
@@ -11,5 +14,7 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(bodyParser.json());
+app.use('/users', userRouter);
 
 export default app;

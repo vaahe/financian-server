@@ -1,3 +1,17 @@
+# folders
 node_modules
-# Keep environment variables out of version control
+dist
+src/prisma/generated
+
+# Environment variables
 .env
+.env.test
+.env.production
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# Optional npm cache directory
+.npm
