@@ -2,6 +2,7 @@
 node_modules
 dist
 src/prisma/generated
+.idea
 
 # Environment variables
 .env
