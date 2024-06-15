@@ -16,7 +16,7 @@ const userExists = async (id: string): Promise<boolean> => {
     return Boolean(user);
 }
 
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createUser = async (req: Request, res: Response) => {
     try {
         const { fullName, email, password, phoneNumber, imageUrl } = req.body;
 
@@ -39,13 +39,23 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 }
 
-export const getUser = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+type DecodedToken = {
+    userId: string,
+    iat: number,
+    exp: number,
+};
+
+interface GetUserRequest extends Request {
+    user?: DecodedToken
+}
+
+export const getUser = async (req: GetUserRequest, res: Response, next: NextFunction) => {
+    const userId: any = req?.user?.userId;
 
     try {
         const user = await prisma.user.findUnique({
             where: {
-                id
+                id: userId
             }
         });
 
@@ -92,6 +102,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
 
+    console.log(id);
     try {
         const existingUser = await userExists(id);
         if (!existingUser) {
@@ -99,9 +110,16 @@ export const updateUser = async (req: Request, res: Response) => {
         }
 
         const newData = req.body;
+
+        let hashedPassword;
+        if (newData.password) {
+            const { password } = newData;
+            hashedPassword = await hashPassword(password);
+        }
+
         const updatedUser = await prisma.user.update({
             where: { id },
-            data: newData
+            data: { ...newData, password: hashedPassword }
         });
 
         return res.status(200).json({ updatedUser });
