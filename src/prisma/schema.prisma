@@ -14,20 +14,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Video {
-  id        String   @id @default(uuid())
-  title     String
-  url       String
-  duration  Int
-  courseId  String
-  createdAt DateTime @default(now())
-
-  // relations
-  course Course @relation(fields: [courseId], references: [id])
-
-  @@index([courseId])
-}
-
 model User {
   id          String   @id @default(uuid())
   fullName    String
@@ -35,11 +21,19 @@ model User {
   password    String
   phoneNumber String
   imageUrl    String
+  isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
 
   // relations
   courses  Course[]  @relation("UserCourses")
   comments Comment[]
+}
+
+model Video {
+  id          String   @id @default(uuid())
+  filename    String
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
 }
 
 model Course {
@@ -48,9 +42,8 @@ model Course {
   description String
   price       Float
   rating      Float
-  reviews     Int
   category    String
-  imageUrl    String
+  thumbnail   String
   duration    Int
   videoCount  Int
   videos      Video[]
