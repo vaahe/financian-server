@@ -6,8 +6,9 @@ import cookieParser from "cookie-parser";
 
 import userRouter from './routes/userRouter';
 import authRouter from './routes/authRouter';
-import refreshRouter from './routes/refreshRouter';
 import courseRouter from './routes/courseRouter';
+import refreshRouter from './routes/refreshRouter';
+import paymentRouter from './routes/paymentRouter';
 import { authMiddleware } from "./middlewares/authMiddleware";
 
 dotenv.config();
@@ -26,8 +27,9 @@ app.use(cors(corsOptions));
 
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
-app.use('/refresh', refreshRouter);
 app.use('/courses', courseRouter);
+app.use('/refresh', refreshRouter);
+app.use('/payment', paymentRouter);
 
 app.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'This is a protected route' });
