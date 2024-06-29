@@ -12,7 +12,7 @@ export const getCourses = async (req: Request, res: Response) => {
             include: {
                 videos: true,
                 comments: true,
-                buyers: true
+                orders: true
             }
         });
 
@@ -39,7 +39,7 @@ export const getCourseById = async (req: Request, res: Response) => {
             where: { id }, include: {
                 videos: true,
                 comments: true,
-                buyers: true
+                orders: true
             }
         });
 
@@ -64,7 +64,7 @@ export const createCourse = async (req: Request, res: Response) => {
             category,
             duration,
             videoCount,
-            buyers,
+            orders,
             updatedAt,
             comments
         } = req.body;
@@ -75,7 +75,7 @@ export const createCourse = async (req: Request, res: Response) => {
         const videoData = videos.map(video => ({ filename: video.filename }));
 
         const parsedComments = comments ? JSON.parse(comments) : [];
-        const parsedBuyers = buyers ? JSON.parse(buyers) : [];
+        const parsedBuyers = orders ? JSON.parse(orders) : [];
 
         const newCourse = await prisma.course.create({
             data: {
@@ -96,7 +96,7 @@ export const createCourse = async (req: Request, res: Response) => {
                 comments: {
                     create: parsedComments
                 },
-                buyers: {
+                orders: {
                     create: parsedBuyers
                 }
             },
@@ -134,7 +134,7 @@ export const updateCourse = async (req: Request, res: Response) => {
             category,
             duration,
             videoCount,
-            buyers,
+            orders,
             updatedAt,
             comments
         } = req.body;
@@ -145,7 +145,7 @@ export const updateCourse = async (req: Request, res: Response) => {
         const videoData = videos.map(video => ({ filename: video.path }));
 
         const parsedComments = comments ? JSON.parse(comments) : [];
-        const parsedBuyers = buyers ? JSON.parse(buyers) : [];
+        const parsedBuyers = orders ? JSON.parse(orders) : [];
 
         const updatedCourse = await prisma.course.update({
             where: { id },
@@ -169,7 +169,7 @@ export const updateCourse = async (req: Request, res: Response) => {
                     deleteMany: {},
                     create: parsedComments
                 },
-                buyers: {
+                orders: {
                     deleteMany: {},
                     create: parsedBuyers
                 }
