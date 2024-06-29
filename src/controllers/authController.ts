@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as bcrypt from 'bcrypt';
 import { PrismaClient } from "../prisma/generated/client";
 
 import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
-import { generateVerificationCode, getVerificationCode, setVerificationCode, sendEmail } from "../config/mailConfig";
+import { generateVerificationCode, getVerificationCode, setVerificationCode, sendEmail, deleteVerificationCode } from "../config/mailConfig";
 
 const prisma = new PrismaClient();
 
@@ -53,7 +53,7 @@ export const signIn = async (req: Request, res: Response) => {
     }
 }
 
-export const signUp = async (req: Request, res: Response) => {
+export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password, repeatPassword } = req.body;
 
@@ -74,6 +74,7 @@ export const signUp = async (req: Request, res: Response) => {
         await sendEmail(email, "Verification code", `Your verification code is ${verificationCode}`);
 
         const hashedPassword = await hashPassword(password);
+
         await prisma.user.create({
             data: {
                 email,
@@ -85,7 +86,7 @@ export const signUp = async (req: Request, res: Response) => {
             }
         });
 
-        return res.status(200).json({ message: 'Verification code is sent to email. Please verify.' });
+        return res.status(200).json({ message: `Verification code is sent to ${email}. Please verify.` });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -129,6 +130,8 @@ export const verify = async (req: Request, res: Response) => {
             where: { email },
             data: { isVerified: true }
         });
+
+        await deleteVerificationCode(email);
 
         return res.status(200).json({ message: 'User verified successfully' });
     } catch (error) {
