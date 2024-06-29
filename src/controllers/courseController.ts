@@ -12,7 +12,7 @@ export const getCourses = async (req: Request, res: Response) => {
             include: {
                 videos: true,
                 comments: true,
-                buyers: true
+                orders: true
             }
         });
 
@@ -39,7 +39,7 @@ export const getCourseById = async (req: Request, res: Response) => {
             where: { id }, include: {
                 videos: true,
                 comments: true,
-                buyers: true
+                orders: true
             }
         });
 
@@ -96,7 +96,7 @@ export const createCourse = async (req: Request, res: Response) => {
                 comments: {
                     create: parsedComments
                 },
-                buyers: {
+                orders: {
                     create: parsedBuyers
                 }
             },
@@ -169,7 +169,7 @@ export const updateCourse = async (req: Request, res: Response) => {
                     deleteMany: {},
                     create: parsedComments
                 },
-                buyers: {
+                orders: {
                     deleteMany: {},
                     create: parsedBuyers
                 }
