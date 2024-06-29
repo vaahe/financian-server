@@ -127,6 +127,8 @@ export const updateUser = async (req: Request, res: Response) => {
         }
 
         const newData = req.body;
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const avatar = files && files['avatar'] ? files['avatar'][0] : null;
 
         let hashedPassword;
         if (newData.password) {
@@ -136,7 +138,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
         const updatedUser = await prisma.user.update({
             where: { id },
-            data: { ...newData, password: hashedPassword }
+            data: {
+                ...newData,
+                imageUrl: avatar && avatar.filename,
+                password: hashedPassword
+            }
         });
 
         return res.status(200).json({ updatedUser });
