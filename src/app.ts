@@ -9,6 +9,8 @@ import authRouter from './routes/authRouter';
 import courseRouter from './routes/courseRouter';
 import refreshRouter from './routes/refreshRouter';
 import paymentRouter from './routes/paymentRouter';
+import commentsRouter from './routes/commentsRouter';
+
 import { authMiddleware } from "./middlewares/authMiddleware";
 
 dotenv.config();
@@ -30,6 +32,7 @@ app.use('/users', userRouter);
 app.use('/courses', courseRouter);
 app.use('/refresh', refreshRouter);
 app.use('/payment', paymentRouter);
+app.use('/comments', commentsRouter);
 
 app.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'This is a protected route' });

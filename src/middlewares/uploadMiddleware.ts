@@ -47,6 +47,12 @@ const upload = multer({
             } else {
                 cb(new Error('Only .mp4 files are allowed for videos'));
             }
+        } else if (file.fieldname === 'avatar') {
+            if (file.mimetype.startsWith('image/')) {
+                cb(null, true)
+            } else {
+                cb(new Error('Only image files are allowed for avatar'));
+            }
         } else {
             cb(new Error('Unexpected file field uploaded'));
         }
@@ -54,6 +60,7 @@ const upload = multer({
 });
 
 export const uploadFiles = upload.fields([
+    { name: 'avatar', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 },
     { name: 'videos', maxCount: 10 },
 ]);

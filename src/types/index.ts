@@ -1,10 +1,12 @@
 export type TUser = {
-    id: string;
+    id?: string;
     fullName: string;
     password: string;
     email: string;
     phoneNumber: string;
     imageUrl: string;
+    isVerified: boolean;
+    createdAt?: Date;
 }
 
 export type TCourse = {
