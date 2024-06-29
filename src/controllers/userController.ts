@@ -1,8 +1,15 @@
 import * as bcrypt from 'bcrypt';
 import { NextFunction, Request, Response } from "express";
-
-import { TUser } from '../types';
+import { User } from '../prisma/generated/client';
 import { PrismaClient } from '../prisma/generated/client';
+
+declare module 'express-serve-static-core' {
+    interface Request {
+        newUser?: User;
+    }
+}
+
+type TUser = User;
 
 const prisma: PrismaClient = new PrismaClient();
 
@@ -16,9 +23,13 @@ const userExists = async (id: string): Promise<boolean> => {
     return Boolean(user);
 }
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { fullName, email, password, phoneNumber, imageUrl } = req.body;
+        const { email, password, fullName, phoneNumber, imageUrl } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
 
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
@@ -28,11 +39,17 @@ export const createUser = async (req: Request, res: Response) => {
         const hashedPassword = await hashPassword(password);
         const newUser: TUser = await prisma.user.create({
             data: {
-                fullName, email, password: hashedPassword, phoneNumber, imageUrl
+                email,
+                password: hashedPassword,
+                fullName: fullName || "",
+                imageUrl: imageUrl || "",
+                phoneNumber: phoneNumber || "",
+                isVerified: false,
             }
         });
 
-        return res.status(200).json({ user: newUser });
+        req.newUser = newUser;
+        next();
     } catch (error) {
         console.error('Error creating user:', error);
         return res.status(500).json({ error: 'Internal server error' });
