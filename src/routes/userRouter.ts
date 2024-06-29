@@ -6,7 +6,7 @@ import { uploadFiles } from "../middlewares/uploadMiddleware";
 const router: Router = Router();
 
 router.get('/', getUsers);
-router.post('/', createUser);
+// router.post('/', createUser);
 router.delete('/:id', deleteUser);
 router.patch('/:id', uploadFiles, updateUser);
 
