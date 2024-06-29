@@ -9,8 +9,9 @@ if (!fs.existsSync(uploadDir)) {
 
 const thumbnailDir = path.join(uploadDir, 'thumbnails');
 const videoDir = path.join(uploadDir, 'videos');
+const avatarDir = path.join(uploadDir, 'avatars');
 
-[thumbnailDir, videoDir].forEach(dir => {
+[thumbnailDir, videoDir, avatarDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
@@ -23,6 +24,8 @@ const storage = multer.diskStorage({
             uploadPath = thumbnailDir;
         } else if (file.fieldname === 'videos') {
             uploadPath = videoDir;
+        } else if (file.fieldname === 'avatar') {
+            uploadPath = avatarDir;
         }
         cb(null, uploadPath);
     },
