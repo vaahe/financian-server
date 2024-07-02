@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createPaymentIntent, stripeWebHook } from "../controllers/paymentController";
+import { createOrder, createPaymentIntent } from "../controllers/paymentController";
 
 const router = Router();
 
 router.post('/', createPaymentIntent);
-router.post('/webhook', stripeWebHook);
+router.post('/order', createOrder);
+// router.post('/webhook', stripeWebHook);
 
 export default router;
