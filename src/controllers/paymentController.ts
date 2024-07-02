@@ -1,83 +1,71 @@
-import { Request, Response } from "express";
 import Stripe from "stripe";
+import { Request, Response } from "express";
 import { PrismaClient } from "../prisma/generated/client";
 
-const prisma = new PrismaClient;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2024-06-20'
 });
 
-export const createPaymentIntent = async (req: Request, res: Response) => {
-    const { courseId, userId } = req.body;
+const prisma = new PrismaClient();
 
-    if (!courseId || !userId) {
-        return res.status(400).json({ message: "Bad request. Check CourseID or UserId" });
+export const createPaymentIntent = async (req: Request, res: Response) => {
+    const { userId, courseId, name, price } = req.body;
+
+    console.log({ userId, courseId, name, price });
+
+    if (!userId || !courseId || !name || !price) {
+        return res.status(400).json({ message: "Bad request. Missing required parameters." });
     }
 
     try {
-        const course = await prisma.course.findUnique({ where: { id: courseId } });
-        const user = await prisma.user.findUnique({ where: { id: userId } });
+        // const user = await prisma.user.findUnique({ where: { id: userId } });
+        // if (!user) {
+        //     return res.status(404).json({ message: "User not found." });
+        // }
 
-        if (!course || !user) {
-            return res.status(400).json({ message: "Invalid course or user" });
-        }
-
-        console.log(course);
-        const amountInCents = Math.round(course.price * 100); // Convert to cents
-
-        if (amountInCents < 50) {
-            return res.status(400).json({ message: "Amount must be at least $0.50" });
-        }
+        // const course = await prisma.course.findUnique({ where: { id: courseId } });
+        // if (!course) {
+        //     return res.status(404).json({ message: "Course not found." });
+        // }
 
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amountInCents,
+            amount: price * 100,
             currency: 'usd',
+            payment_method_types: ['card'],
             metadata: { userId, courseId },
-            automatic_payment_methods: {
-                enabled: true,
-                allow_redirects: 'never'
-            }
         });
 
-        await prisma.order.create({
-            data: { userId, courseId }
-        });
+        // const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-        return res.status(200).json({ paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret });
+        // Send verification code to user's email
+        // const user = await prisma.user.findUnique({ where: { id: userId } });
+        // if (user) {
+        //     await sendVerificationCode(user.email, verificationCode);
+        // } else {
+        //     return res.status(404).json({ message: "User not found." });
+        // }
+
+        return res.json({ clientSecret: paymentIntent.client_secret });
     } catch (error) {
         console.error(error);
-
-        if (error instanceof Stripe.errors.StripeError) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Internal server error" });
     }
-}
+};
 
-export const stripeWebHook = async (req: Request, res: Response) => {
-    const sig = req.headers['stripe-signature'];
-
-    let event;
-
+export const createOrder = async (req: Request, res: Response) => {
     try {
-        event = stripe.webhooks.constructEvent(req.body, sig!, process.env.STRIPE_WEBHOOK_SECRET!);
+        const { userId, courseId } = req.body;
+
+        const createdOrder = await prisma.order.create({
+            data: {
+                userId,
+                courseId,
+            },
+        });
+
+        return res.json({ message: 'Order created successfully', order: createdOrder });
     } catch (error) {
         console.error(error);
-        return res.status(400).json({ message: `Webhook error: ${error}` });
+        return res.status(500).json({ message: 'Failed to create order' });
     }
-
-    if (event.type === 'payment_intent.succeeded') {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const { userId, courseId } = paymentIntent.metadata;
-
-        try {
-            await prisma.order.create({
-                data: { userId, courseId }
-            });
-        } catch (error) {
-            console.error("Error creating order: ", error);
-        }
-    }
-
-    return res.status(200).json({ received: true });
-}
+};
