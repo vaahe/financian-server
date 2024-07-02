@@ -47,7 +47,23 @@ export const getCourseById = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Course not found" });
         }
 
-        return res.status(200).json(course);
+        const thumbnailPath = path.join(__dirname, '..', 'uploads', 'thumbnails', course.thumbnail);
+        const videoPaths = course.videos.map((video: any) => path.join(__dirname, '..', 'uploads', 'videos', video.filename));
+
+        if (!fs.existsSync(thumbnailPath)) {
+            return res.status(404).json({ message: "File not found" });
+        }
+
+        const thumbnailData = fs.readFileSync(thumbnailPath, 'base64');
+        const videosData = videoPaths.map((videoPath: string) => {
+            if (fs.existsSync(videoPath)) {
+                return fs.readFileSync(videoPath, 'base64');
+            } else {
+                return null;
+            }
+        }).filter((videoData) => videoData !== null);
+
+        return res.status(200).json({ ...course, thumbnail: { name: course.thumbnail, data: thumbnailData }, videos: videosData });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
