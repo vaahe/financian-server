@@ -10,7 +10,9 @@ export const setVerificationCode = async (email: string, code: string): Promise<
     const expirationTime = 3600; // 1 hour in seconds
     console.log(key, code);
     try {
-        await redis.set(key, code, 'EX', expirationTime);
+        await redis.set(key, code, {
+            EX: expirationTime
+        });
     } catch (error) {
         console.error(error);
         throw new Error('Internal server error');
