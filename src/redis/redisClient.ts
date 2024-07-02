@@ -10,6 +10,7 @@ redisClient.on('connect', () => {
     console.log('Connected to redisClient');
 });
 
+
 redisClient.on('error', (error) => {
     console.error('Redis error: ', error);
 });
