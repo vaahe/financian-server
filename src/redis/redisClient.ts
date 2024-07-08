@@ -7,6 +7,9 @@ if (!process.env.REDIS_URL) {
 
 const redisClient = createClient({
     url: process.env.REDIS_URL,
+    socket: {
+        tls: true,
+    },
 });
 
 redisClient.on('connect', () => {
@@ -23,7 +26,6 @@ redisClient.on('end', () => {
 
 redisClient.on('error', (error) => {
     console.error('Redis error: ', error.message);
-    // Consider implementing reconnection logic here
 });
 
 redisClient.on('close', () => {
