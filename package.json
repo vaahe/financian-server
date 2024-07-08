@@ -4,7 +4,8 @@
   "description": "server of financian",
   "main": "index.js",
   "prisma": {
-    "schema": "src/prisma/schema.prisma"
+    "schema": "src/prisma/schema.prisma",
+    "seed": "src/prisma/seed.ts"
   },
   "scripts": {
     "start": "node dist/index.js",
@@ -47,6 +48,7 @@
     "prettier": "^3.3.1",
     "prisma": "^5.15.0",
     "rimraf": "^5.0.7",
+    "ts-node": "^10.9.2",
     "tsx": "^4.12.0",
     "typescript": "^5.4.5"
   },
