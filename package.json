@@ -5,7 +5,7 @@
   "main": "index.js",
   "prisma": {
     "schema": "src/prisma/schema.prisma",
-    "seed": "src/prisma/seed.ts"
+    "seed": "ts-node src/prisma/seed.ts"
   },
   "scripts": {
     "start": "node dist/index.js",
