@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { NextFunction, Request, Response } from "express";
-import { User } from '../prisma/generated/client';
-import { PrismaClient } from '../prisma/generated/client';
+import { User, PrismaClient } from '../prisma/generated/client';
 
 declare module 'express-serve-static-core' {
     interface Request {
