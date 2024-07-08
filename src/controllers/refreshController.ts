@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { generateAccessToken } from '../utils/jwtUtils';
 
 export const refreshToken = async (req: Request, res: Response) => {
@@ -15,7 +15,7 @@ export const refreshToken = async (req: Request, res: Response) => {
             if (error) {
                 return res.status(403).json({ message: 'Invalid refresh token' });
             }
-            
+
             const newAccessToken = generateAccessToken(user?.id);
 
             return res.json({ newAccessToken });
