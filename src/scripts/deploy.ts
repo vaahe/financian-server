@@ -39,7 +39,7 @@ async function deploy() {
         await executeCommand('npm run prisma:seed');
 
         // Step 6: Start the application
-        await executeCommand('npm run start');
+        await executeCommand('npm run dev');
 
         console.log('Application started');
     } catch (error) {
