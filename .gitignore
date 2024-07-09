@@ -16,3 +16,4 @@ npm-debug.log*
 
 # Optional npm cache directory
 .npm
+.vercel
