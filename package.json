@@ -2,7 +2,7 @@
   "name": "financian-server-1",
   "version": "1.0.0",
   "description": "server of financian",
-  "main": "index.js",
+  "main": "dist/index.js",
   "prisma": {
     "schema": "src/prisma/schema.prisma",
     "seed": "ts-node src/prisma/seed.ts"
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "rimraf dist && npx tsc",
+    "build": "rimraf dist && npx tsc && npm run deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
