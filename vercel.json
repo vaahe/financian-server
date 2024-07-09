@@ -1,6 +1,8 @@
 {
     "version": 2,
     "name": "financian-server",
+    "buildCommand": "npm run deploy",
+    "devCommand": "nom run dev",
     "builds": [
         {
             "src": "index.js",
