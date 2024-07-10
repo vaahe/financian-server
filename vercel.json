@@ -12,7 +12,5 @@
             "src": "/(.*)",
             "dest": "/dist/index.js"
         }
-    ],
-    "build": "npm run deploy",
-    "installCommand": "npm install"
+    ]
 }
