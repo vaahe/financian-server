@@ -1,5 +1,5 @@
-import * as bcrypt from 'bcrypt';
 import { NextFunction, Request, Response } from "express";
+import { hashPassword, userExists } from '../utils/userUtils';
 import { User, PrismaClient } from '../prisma/generated/client';
 
 declare module 'express-serve-static-core' {
@@ -9,28 +9,19 @@ declare module 'express-serve-static-core' {
 }
 
 type TUser = User;
+type DecodedToken = {
+    userId: string,
+    iat: number,
+    exp: number,
+};
 
 const prisma: PrismaClient = new PrismaClient();
 
-const hashPassword = async (password: string): Promise<string> => {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
-}
-
-const userExists = async (id: string): Promise<boolean> => {
-    const user = await prisma.user.findUnique({ where: { id } });
-    return Boolean(user);
-}
-
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, password, fullName, phoneNumber, imageUrl } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required' });
-        }
-
+        const { fullName, imageUrl, phoneNumber, email, password, } = req.body;
         const existingUser = await prisma.user.findUnique({ where: { email } });
+
         if (existingUser) {
             return res.status(409).json({ message: 'User already exists' });
         }
@@ -55,18 +46,12 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 }
 
-type DecodedToken = {
-    userId: string,
-    iat: number,
-    exp: number,
-};
-
 interface GetUserRequest extends Request {
     user?: DecodedToken
 }
 
 export const getUser = async (req: GetUserRequest, res: Response, next: NextFunction) => {
-    const userId: any = req?.user?.userId;
+    const userId = req?.user?.userId;
 
     try {
         const user = await prisma.user.findUnique({
@@ -100,8 +85,8 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
 export const deleteUser = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-
         const existingUser = await userExists(id);
+
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -118,9 +103,9 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    console.log(id);
     try {
         const existingUser = await userExists(id);
+
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -130,6 +115,7 @@ export const updateUser = async (req: Request, res: Response) => {
         const avatar = files && files['avatar'] ? files['avatar'][0] : null;
 
         let hashedPassword;
+
         if (newData.password) {
             const { password } = newData;
             hashedPassword = await hashPassword(password);
