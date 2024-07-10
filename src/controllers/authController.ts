@@ -1,20 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import * as bcrypt from 'bcrypt';
-import { PrismaClient } from "../prisma/generated/client";
 
+import { PrismaClient } from "../prisma/generated/client";
+import { hashPassword, verifyPassword } from '../utils/authUtils';
 import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
 import { generateVerificationCode, getVerificationCode, setVerificationCode, sendEmail, deleteVerificationCode } from "../config/mailConfig";
 
 const prisma = new PrismaClient();
-
-const verifyPassword = async (inputPassword: string, storedHash: string): Promise<boolean> => {
-    return bcrypt.compare(inputPassword, storedHash);
-};
-
-const hashPassword = async (password: string): Promise<string> => {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
-}
 
 export const signIn = async (req: Request, res: Response) => {
     try {
@@ -56,7 +47,6 @@ export const signIn = async (req: Request, res: Response) => {
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password, repeatPassword } = req.body;
-
         const existingUser = await prisma.user.findUnique({ where: { email } });
 
         if (existingUser) {
@@ -115,10 +105,6 @@ export const logOut = async (req: Request, res: Response) => {
 export const verify = async (req: Request, res: Response) => {
     try {
         const { email, verificationCode } = req.body;
-
-        if (!email || !verificationCode) {
-            return res.status(400).json({ message: 'Email and verification code are required' });
-        }
 
         const code = await getVerificationCode(email);
 
