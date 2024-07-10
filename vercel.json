@@ -1,18 +1,18 @@
 {
     "version": 2,
     "name": "financian-server",
-    "buildCommand": "npm run deploy",
-    "devCommand": "npm run dev",
     "builds": [
         {
-            "src": "./src/index.ts",
+            "src": "dist/index.js",
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "./src/index.ts"
+            "dest": "/dist/index.js"
         }
-    ]
+    ],
+    "buildCommand": "npm run deploy",
+    "installCommand": "npm install"
 }
