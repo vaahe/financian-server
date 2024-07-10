@@ -1,14 +1,9 @@
 import { createClient } from "redis";
 
-if (!process.env.REDIS_URL) {
-    console.error('Error: REDIS_URL environment variable not set');
-    process.exit(1);
-}
-
 const redisClient = createClient({
     url: process.env.REDIS_URL,
     socket: {
-        tls: true,
+        tls: process.env.NODE_ENV == 'production' ? true : false,
     },
 });
 
@@ -25,7 +20,7 @@ redisClient.on('end', () => {
 });
 
 redisClient.on('error', (error) => {
-    console.error('Redis error: ', error.message);
+    console.error('Redis error: ', error.message || error);
 });
 
 redisClient.on('close', () => {
