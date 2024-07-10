@@ -13,10 +13,6 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
 
     console.log({ userId, courseId, name, price });
 
-    if (!userId || !courseId || !name || !price) {
-        return res.status(400).json({ message: "Bad request. Missing required parameters." });
-    }
-
     try {
         // const user = await prisma.user.findUnique({ where: { id: userId } });
         // if (!user) {

@@ -7,10 +7,6 @@ export const createComment = async (req: Request, res: Response) => {
     try {
         const { content, courseId, authorId } = req.body;
 
-        if (!content || !courseId || !authorId) {
-            return res.status(400).json({ message: "Bad request" });
-        }
-
         const course = await prisma.course.findUnique({ where: { id: courseId } });
         const author = await prisma.user.findUnique({ where: { id: authorId } });
 
@@ -36,10 +32,6 @@ export const updateComment = async (req: Request, res: Response) => {
         const { id } = req.params;
         const { content } = req.body;
 
-        if (!id || !content) {
-            return res.status(400).json({ message: "Bad request" });
-        }
-
         const updatedComment = await prisma.comment.update({
             where: { id },
             data: { content },
@@ -55,10 +47,6 @@ export const updateComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({ message: "Bad request" });
-        }
 
         await prisma.comment.delete({
             where: { id },

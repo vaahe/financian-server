@@ -1,8 +1,7 @@
+import fs from 'fs';
+import path from 'path';
 import { Request, Response } from 'express';
 import { PrismaClient } from '../prisma/generated/client';
-import { TCourse } from '../types';
-import path from 'path';
-import fs from 'fs';
 
 const prisma = new PrismaClient();
 
@@ -30,10 +29,6 @@ export const getCourses = async (req: Request, res: Response) => {
 export const getCourseById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({ message: "Bad request. ID is missing" });
-        }
 
         const course = await prisma.course.findUnique({
             where: { id }, include: {
@@ -132,10 +127,6 @@ export const updateCourse = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        if (!id) {
-            return res.status(400).json({ message: "Bad request. ID is missing" });
-        }
-
         const existingCourse = await prisma.course.findUnique({ where: { id } });
 
         if (!existingCourse) {
@@ -204,10 +195,6 @@ export const updateCourse = async (req: Request, res: Response) => {
 
 export const deleteCourse = async (req: Request, res: Response) => {
     const courseId = req.params.id;
-
-    if (!courseId) {
-        return res.status(400).json({ message: "Bad request. ID is missing" });
-    }
 
     try {
         const course = await prisma.course.findUnique({
