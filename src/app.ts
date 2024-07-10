@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import './config';
 import bodyParser from 'body-parser';
 import cors, { CorsOptions } from 'cors';
 import express, { Express } from "express";
@@ -12,8 +12,6 @@ import paymentRouter from './routes/paymentRouter';
 import commentsRouter from './routes/commentsRouter';
 
 import { authMiddleware } from "./middlewares/authMiddleware";
-
-dotenv.config();
 
 const app: Express = express();
 
