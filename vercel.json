@@ -13,6 +13,8 @@
             "dest": "/dist/index.js"
         }
     ],
-    "buildCommand": "npm run deploy",
+    "build": {
+        "buildCommand": "npm run deploy"
+    },
     "installCommand": "npm install"
 }
