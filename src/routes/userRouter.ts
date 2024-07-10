@@ -2,15 +2,16 @@ import { createUser, deleteUser, getUser, getUsers, updateUser } from "../contro
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { uploadFiles } from "../middlewares/uploadMiddleware";
+import { validateDeleteUser, validateGetUser, validateUpdateUser } from "../middlewares/validations/userValidation";
 
 const router: Router = Router();
 
 router.get('/', getUsers);
-// router.post('/', createUser);
-router.delete('/:id', deleteUser);
-router.patch('/:id', uploadFiles, updateUser);
+// router.post('/', validateCreateUser, createUser);
+router.delete('/:id', validateDeleteUser, deleteUser);
+router.patch('/:id', validateUpdateUser, uploadFiles, updateUser);
 
 router.use(authMiddleware);
-router.get('/me', getUser);
+router.get('/me', validateGetUser, getUser);
 
 export default router;
