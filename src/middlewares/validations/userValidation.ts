@@ -9,10 +9,6 @@ const createUserSchema = Joi.object({
     password: Joi.string().min(8).required(),
 });
 
-const getUserSchema = Joi.object({
-    userId: Joi.string().uuid().required()
-});
-
 const updateUserSchema = Joi.object({
     id: Joi.string().uuid().required(),
     imageUrl: Joi.string().optional(),
@@ -26,7 +22,6 @@ const deleteUserSchema = Joi.object({
     id: Joi.string().uuid().required()
 });
 
-export const validateGetUser = validate(getUserSchema);
 export const validateCreateUser = validate(createUserSchema);
 export const validateUpdateUser = validate(updateUserSchema);
 export const validateDeleteUser = validate(deleteUserSchema);
