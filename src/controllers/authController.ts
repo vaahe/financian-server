@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { PrismaClient } from "../prisma/generated/client";
 import { hashPassword, verifyPassword } from '../utils/authUtils';
-import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwtUtils";
 import { generateVerificationCode, getVerificationCode, setVerificationCode, sendEmail, deleteVerificationCode } from "../config/mailConfig";
 
 const prisma = new PrismaClient();
@@ -37,7 +37,7 @@ export const signIn = async (req: Request, res: Response) => {
             maxAge: 1 * 24 * 60 * 60 * 1000
         });
 
-        return res.status(200).json({ message: 'Login successful' })
+        return res.status(200).json({ message: 'Login successful', id: user.id })
     } catch (error) {
         console.error('Error during sign-in:', error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -124,4 +124,66 @@ export const verify = async (req: Request, res: Response) => {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
     }
+}
+
+export const requestVerification = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+
+        if (!existingUser) {
+            return res.status(404).json({ message: 'User doesn\'t exists.' });
+        }
+
+        if (existingUser.isVerified) {
+            return res.status(409).json({ message: 'Email is verified already.' });
+        }
+
+        const verificationCode = generateVerificationCode();
+        await setVerificationCode(email, verificationCode);
+        await sendEmail(email, "Verification code", `Your verification code is ${verificationCode}`);
+
+        return res.status(200).json({ message: `Verification code is sent to ${email}. Please verify.` });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const refreshToken = async (req: Request, res: Response) => {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+        return res.status(401).json({ message: "Unauthorized: No refresh token provided" });
+    }
+
+    const decodedToken = verifyRefreshToken(refreshToken);
+
+    if (!decodedToken) {
+        return res.status(403).json({ message: "Forbidden: Invalid refresh token" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: decodedToken.userId } });
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    const newAccessToken = generateAccessToken(user.id);
+    const newRefreshToken = generateRefreshToken(user.id);
+
+    res.cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 60 * 1000
+    });
+
+    res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 1 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json({ message: "Tokens refreshed" });
 }
