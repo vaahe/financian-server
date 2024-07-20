@@ -1,26 +1,36 @@
 import jwt from 'jsonwebtoken';
+import { DecodedToken } from '../types';
 
-const generateAccessToken = (userId: string) => {
-    console.log({ userId });
-    const accessSecret = process.env.JWT_ACCESS_SECRET;
-
-    if (!accessSecret) {
-        throw new Error('JWT_ACCESS_SECRET environment variable undefined');
-    }
+export const generateAccessToken = (userId: string) => {
+    const accessSecret = process.env.JWT_ACCESS_SECRET!;
 
     return jwt.sign({ userId }, accessSecret, { expiresIn: '30m' });
 }
 
-const generateRefreshToken = (userId: string) => {
-    console.log({ userId });
-
-    const refreshSecret = process.env.JWT_REFRESH_SECRET;
-
-    if (!refreshSecret) {
-        throw new Error('JWT_REFRESH_SECRET env varibale undefined');
-    }
+export const generateRefreshToken = (userId: string) => {
+    const refreshSecret = process.env.JWT_REFRESH_SECRET!;
 
     return jwt.sign({ userId }, refreshSecret, { expiresIn: '1d' });
 }
 
-export { generateAccessToken, generateRefreshToken };
+export const verifyAccessToken = (token: string) => {
+    const accessSecret = process.env.JWT_ACCESS_SECRET!;
+
+    try {
+        return jwt.verify(token, accessSecret) as DecodedToken;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const verifyRefreshToken = (token: string) => {
+    const refreshSecret = process.env.JWT_REFRESH_SECRET!;
+
+    try {
+        return jwt.verify(token, refreshSecret) as DecodedToken;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
