@@ -3,7 +3,7 @@ import { createClient } from "redis";
 const redisClient = createClient({
     url: process.env.REDIS_URL,
     socket: {
-        tls: true,
+        tls: process.env.NODE_ENV == 'production'
     },
 });
 
