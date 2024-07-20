@@ -24,3 +24,10 @@ export type TCourse = {
     updatedAt: Date;
 }
 
+
+
+export type DecodedToken = {
+    userId: string,
+    iat: number,
+    exp: number,
+};
