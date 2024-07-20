@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { hashPassword, userExists } from '../utils/userUtils';
 import { User, PrismaClient } from '../prisma/generated/client';
+import { verifyAccessToken } from "../utils/jwtUtils";
 
 declare module 'express-serve-static-core' {
     interface Request {
@@ -51,9 +52,14 @@ interface GetUserRequest extends Request {
 }
 
 export const getUser = async (req: GetUserRequest, res: Response, next: NextFunction) => {
-    const userId = req?.user?.userId;
+    const { accessToken } = req.cookies;
 
     try {
+        const decodedToken = verifyAccessToken(accessToken);
+        const userId = decodedToken?.userId;
+
+        console.log({ decodedToken, userId });
+
         const user = await prisma.user.findUnique({
             where: {
                 id: userId
