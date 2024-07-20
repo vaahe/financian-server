@@ -1,4 +1,3 @@
-import './config';
 import bodyParser from 'body-parser';
 import cors, { CorsOptions } from 'cors';
 import express, { Express } from "express";
@@ -7,7 +6,6 @@ import cookieParser from "cookie-parser";
 import userRouter from './routes/userRouter';
 import authRouter from './routes/authRouter';
 import courseRouter from './routes/courseRouter';
-import refreshRouter from './routes/refreshRouter';
 import paymentRouter from './routes/paymentRouter';
 import commentsRouter from './routes/commentsRouter';
 
@@ -28,7 +26,6 @@ app.use(cors(corsOptions));
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/courses', courseRouter);
-app.use('/refresh', refreshRouter);
 app.use('/payment', paymentRouter);
 app.use('/comments', commentsRouter);
 
