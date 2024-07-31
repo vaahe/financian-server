@@ -51,7 +51,7 @@ interface GetUserRequest extends Request {
     user?: DecodedToken
 }
 
-export const getUser = async (req: GetUserRequest, res: Response, next: NextFunction) => {
+export const getUser = async (req: any, res: Response, next: NextFunction) => {
     const { accessToken } = req.cookies;
 
     try {
