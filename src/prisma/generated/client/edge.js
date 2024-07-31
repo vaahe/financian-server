@@ -180,8 +180,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../..",
   "clientVersion": "5.16.1",
@@ -190,16 +189,17 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
-        "fromEnvVar": "DATABASE_URL",
-        "value": null
+        "fromEnvVar": null,
+        "value": "postgresql://postgres:1234@localhost:5432/financian?schema=public"
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../prisma/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id          String   @id @default(uuid())\n  fullName    String\n  email       String   @unique\n  password    String\n  phoneNumber String\n  imageUrl    String\n  isVerified  Boolean  @default(false)\n  createdAt   DateTime @default(now())\n\n  // relations\n  orders   Order[]   @relation(\"UserOrders\")\n  comments Comment[]\n}\n\nmodel Video {\n  id       String @id @default(uuid())\n  filename String\n  courseId String\n  course   Course @relation(fields: [courseId], references: [id])\n}\n\nmodel Course {\n  id          String   @id @default(uuid())\n  title       String\n  description String\n  price       Float\n  rating      Float\n  category    String\n  thumbnail   String\n  duration    Int\n  videoCount  Int\n  videos      Video[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  // relations\n  orders   Order[]   @relation(\"CourseOrders\")\n  comments Comment[]\n}\n\nmodel Comment {\n  id        String   @id @default(uuid())\n  content   String\n  createdAt DateTime @default(now())\n\n  // relations\n  course   Course @relation(fields: [courseId], references: [id])\n  courseId String\n  author   User   @relation(fields: [authorId], references: [id])\n  authorId String\n}\n\nmodel Order {\n  id        String   @id @default(uuid())\n  userId    String\n  courseId  String\n  createdAt DateTime @default(now())\n\n  // relations\n  user   User   @relation(fields: [userId], references: [id], name: \"UserOrders\")\n  course Course @relation(fields: [courseId], references: [id], name: \"CourseOrders\")\n}\n",
-  "inlineSchemaHash": "5e3af34d1d2992549b73334a6dada559b5ddf4536195c701d66ed9a102f28823",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../prisma/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  // url      = env(\"DATABASE_URL\")\n  url      = \"postgresql://postgres:1234@localhost:5432/financian?schema=public\"\n}\n\nmodel User {\n  id          String   @id @default(uuid())\n  fullName    String\n  email       String   @unique\n  password    String\n  phoneNumber String\n  imageUrl    String\n  isVerified  Boolean  @default(false)\n  createdAt   DateTime @default(now())\n\n  // relations\n  orders   Order[]   @relation(\"UserOrders\")\n  comments Comment[]\n}\n\nmodel Video {\n  id       String @id @default(uuid())\n  filename String\n  courseId String\n  course   Course @relation(fields: [courseId], references: [id])\n}\n\nmodel Course {\n  id          String   @id @default(uuid())\n  title       String\n  description String\n  price       Float\n  rating      Float\n  category    String\n  thumbnail   String\n  duration    Int\n  videoCount  Int\n  videos      Video[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  // relations\n  orders   Order[]   @relation(\"CourseOrders\")\n  comments Comment[]\n}\n\nmodel Comment {\n  id        String   @id @default(uuid())\n  content   String\n  createdAt DateTime @default(now())\n\n  // relations\n  course   Course @relation(fields: [courseId], references: [id])\n  courseId String\n  author   User   @relation(fields: [authorId], references: [id])\n  authorId String\n}\n\nmodel Order {\n  id        String   @id @default(uuid())\n  userId    String\n  courseId  String\n  createdAt DateTime @default(now())\n\n  // relations\n  user   User   @relation(fields: [userId], references: [id], name: \"UserOrders\")\n  course Course @relation(fields: [courseId], references: [id], name: \"CourseOrders\")\n}\n",
+  "inlineSchemaHash": "2eee4d31c504137a59941d2cd1422bcd3ce2fab66ff5728f0cf28d9c7346c7b9",
   "copyEngine": true
 }
 config.dirname = '/'
@@ -209,9 +209,7 @@ defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = undefined
 
 config.injectableEdgeEnv = () => ({
-  parsed: {
-    DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.DATABASE_URL || undefined
-  }
+  parsed: {}
 })
 
 if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined) {
