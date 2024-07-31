@@ -187,3 +187,37 @@ export const refreshToken = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: "Tokens refreshed" });
 }
+
+export const googleAuth = async (req: any, res: Response) => {
+    const { id } = req.user;
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const accessToken = generateAccessToken(user.id);
+        const refreshToken = generateRefreshToken(user.id);
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 30 * 60 * 1000
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 1 * 24 * 60 * 60 * 1000
+        });
+
+        res.redirect(`http://localhost:3000/auth/callback?token=${accessToken}`);
+        // return res.status(200).json({ user });
+    } catch (error) {
+        res.status(403).json({ message: 'Forbidden: Invalid access token' });
+    }
+};
