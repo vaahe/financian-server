@@ -13,7 +13,7 @@ export const generateRefreshToken = (userId: string) => {
     return jwt.sign({ userId }, refreshSecret, { expiresIn: '1d' });
 }
 
-export const verifyAccessToken = (token: string) => {
+export const verifyAccessToken = (token: string): DecodedToken | null => {
     const accessSecret = process.env.JWT_ACCESS_SECRET!;
 
     try {
