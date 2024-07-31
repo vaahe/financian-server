@@ -9,7 +9,11 @@ import courseRouter from './routes/courseRouter';
 import paymentRouter from './routes/paymentRouter';
 import commentsRouter from './routes/commentsRouter';
 
+import './config/passportConfig';
+
 import { authMiddleware } from "./middlewares/authMiddleware";
+import session from 'express-session';
+import passport from 'passport';
 
 const app: Express = express();
 
@@ -20,7 +24,16 @@ const corsOptions: CorsOptions = {
 
 app.use(cookieParser());
 app.use(express.json());
-// app.use(bodyParser.json());
+app.use(session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+app.use(passport.initialize()); // initialize passport and session
+app.use(passport.session());
+
 app.use(cors(corsOptions));
 
 app.use('/auth', authRouter);
@@ -30,6 +43,7 @@ app.use('/payment', paymentRouter);
 app.use('/comments', commentsRouter);
 
 app.get('/protected', authMiddleware, (req, res) => {
+    console.log(req.cookies);
     res.json({ message: 'This is a protected route' });
 });
 
