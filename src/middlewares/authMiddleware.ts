@@ -11,7 +11,7 @@ interface AuthenticateRequest extends Request {
     user?: DecodedToken
 }
 
-export const authMiddleware = (req: AuthenticateRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
     const token = req.cookies.accessToken;
 
     if (!token) {
@@ -30,7 +30,7 @@ export const authMiddleware = (req: AuthenticateRequest, res: Response, next: Ne
     }
 };
 
-export const checkAdmin = (req: AuthenticateRequest, res: Response, next: NextFunction) => {
+export const checkAdmin = (req: any, res: Response, next: NextFunction) => {
     const user = req.user;
 
     if (user && user.userId === '9743c77d-e290-40c0-896a-973d8d05ab41') {
