@@ -10,8 +10,7 @@ export const getCourses = async (req: Request, res: Response) => {
         const courses = await prisma.course.findMany({
             include: {
                 videos: true,
-                comments: true,
-                orders: true
+                comments: true
             }
         });
 
@@ -33,8 +32,7 @@ export const getCourseById = async (req: Request, res: Response) => {
         const course = await prisma.course.findUnique({
             where: { id }, include: {
                 videos: true,
-                comments: true,
-                orders: true
+                comments: true
             }
         });
 
@@ -57,6 +55,18 @@ export const getCourseById = async (req: Request, res: Response) => {
                 return null;
             }
         }).filter((videoData) => videoData !== null);
+
+        const origin = req.headers.origin;
+        let responseData;
+        if (origin === 'http://localhost:3000') {
+            responseData = {
+                ...course,
+                thumbnail: course.thumbnail,
+                videos: videosData
+            };
+
+            return res.status(200).json(responseData);
+        }
 
         return res.status(200).json({ ...course, thumbnail: { name: course.thumbnail, data: thumbnailData }, videos: videosData });
     } catch (error) {
@@ -186,6 +196,8 @@ export const updateCourse = async (req: Request, res: Response) => {
             },
         });
 
+        console.log(updatedCourse);
+
         return res.status(200).json({ message: "Course updated successfully", updatedCourse });
     } catch (error) {
         console.error('Error updating course:', error);
@@ -249,5 +261,29 @@ export const deleteCourse = async (req: Request, res: Response) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getCourseByUserId = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+
+        if (!userId) {
+            return res.status(400).json({ message: "userId is required" });
+        }
+
+        const orders = await prisma.order.findMany({
+            where: { userId },
+            include: {
+                course: true,
+            },
+        });
+
+        const courses = orders.map(order => order.course);
+
+        return res.status(200).json(courses);
+    } catch (error) {
+        console.error('Error fetching courses by user ID:', error);
+        throw error;
     }
 }

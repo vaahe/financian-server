@@ -1,4 +1,5 @@
-import bodyParser from 'body-parser';
+import fs from 'fs';
+import path from 'path';
 import cors, { CorsOptions } from 'cors';
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
@@ -41,6 +42,18 @@ app.use('/users', userRouter);
 app.use('/courses', courseRouter);
 app.use('/payment', paymentRouter);
 app.use('/comments', commentsRouter);
+
+app.get('/file/:filename', (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, '/uploads/thumbnails', filename);
+    console.log(filePath);
+
+    if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+    } else {
+        return res.status(404).send('File not found');
+    }
+});
 
 app.get('/protected', authMiddleware, (req, res) => {
     console.log(req.cookies);

@@ -10,9 +10,9 @@ const router: Router = Router();
 router.post('/signup', validateSignUp, signUp);
 router.post('/verify', validateVerify, verify);
 router.post('/signin', validateSignIn, loginRateLimit, signIn);
-router.post('/logout', authMiddleware, logOut);
+router.post('/logout', logOut);
 router.post('/refresh', refreshToken);
-router.post('/request-verification', requestVerification);
+router.post('/request-verification', authMiddleware, requestVerification);
 
 
 router.get('/google', passport.authenticate('google', {

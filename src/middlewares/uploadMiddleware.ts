@@ -7,19 +7,25 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const thumbnailDir = path.join(uploadDir, 'thumbnails');
-const videoDir = path.join(uploadDir, 'videos');
-const avatarDir = path.join(uploadDir, 'avatars');
-
-[thumbnailDir, videoDir, avatarDir].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-});
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        let uploadPath = uploadDir;
+        const { id } = req.body;
+        console.log(req.body);
+
+        const courseUploadDir = path.join(uploadDir + `${id}`);
+        const videoDir = path.join(courseUploadDir, 'videos');
+        const avatarDir = path.join(courseUploadDir, 'avatars');
+        const thumbnailDir = path.join(courseUploadDir, 'thumbnails');
+
+        [thumbnailDir, videoDir, avatarDir].forEach(dir => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+        });
+
+        let uploadPath = courseUploadDir;
+
         if (file.fieldname === 'thumbnail') {
             uploadPath = thumbnailDir;
         } else if (file.fieldname === 'videos') {
@@ -27,6 +33,7 @@ const storage = multer.diskStorage({
         } else if (file.fieldname === 'avatar') {
             uploadPath = avatarDir;
         }
+
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {

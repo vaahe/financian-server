@@ -176,16 +176,18 @@ export const refreshToken = async (req: Request, res: Response) => {
     res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 30 * 60 * 1000
     });
 
     res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 1 * 24 * 60 * 60 * 1000
     });
 
-    return res.status(200).json({ message: "Tokens refreshed" });
+    return res.status(200).json({ message: "Tokens refreshed", accessToken: newAccessToken });
 }
 
 export const googleAuth = async (req: any, res: Response) => {
@@ -206,17 +208,18 @@ export const googleAuth = async (req: any, res: Response) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
             maxAge: 30 * 60 * 1000
         });
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
             maxAge: 1 * 24 * 60 * 60 * 1000
         });
 
         res.redirect(`http://localhost:3000/auth/callback?token=${accessToken}`);
-        // return res.status(200).json({ user });
     } catch (error) {
         res.status(403).json({ message: 'Forbidden: Invalid access token' });
     }

@@ -58,3 +58,25 @@ export const deleteComment = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const getCommentsByCourseId = async (req: Request, res: Response) => {
+    try {
+        const { courseId } = req.params;
+
+        if (!courseId) {
+            return res.status(400).json({ message: "CourseId is required" });
+        }
+
+        const comments = await prisma.comment.findMany({
+            where: { courseId },
+            include: {
+                author: true,
+            },
+        });
+
+        return res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

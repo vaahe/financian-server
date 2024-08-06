@@ -61,14 +61,16 @@ export const getUser = async (req: any, res: Response, next: NextFunction) => {
         const user = await prisma.user.findUnique({
             where: {
                 id: userId
-            }
+            },
         });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        return res.status(200).json({ user });
+        const { password, ...userWithoutPassword } = user;
+
+        return res.status(200).json({ user: userWithoutPassword });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error.' });
@@ -121,8 +123,7 @@ export const updateUser = async (req: Request, res: Response) => {
         let hashedPassword;
 
         if (newData.password) {
-            const { password } = newData;
-            hashedPassword = await hashPassword(password);
+            hashedPassword = await hashPassword(newData.password);
         }
 
         const updatedUser = await prisma.user.update({
